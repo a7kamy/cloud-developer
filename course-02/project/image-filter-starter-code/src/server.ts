@@ -1,7 +1,11 @@
 import express from 'express';
 import bodyParser from 'body-parser';
+import fs from 'fs';
+import path from 'path';
 import {filterImageFromURL, deleteLocalFiles} from './util/util';
-
+var validUrl = require('valid-url');
+var onFinished = require('on-finished');
+var appRoot = require('app-root-path');
 (async () => {
 
   // Init the Express application
@@ -28,11 +32,49 @@ import {filterImageFromURL, deleteLocalFiles} from './util/util';
   //   the filtered image file [!!TIP res.sendFile(filteredpath); might be useful]
 
   /**************************************************************************** */
+  app.get('/filteredimage/', async(req, res , n ) =>{
 
+    let {image_url} = req.query
+
+    if(!validUrl.isUri(image_url)){
+      res.status(404).send({"error": "Inavlid query field : Image Url "})
+    }
+    else
+    {
+      try
+    {
+      let filteredpath = await filterImageFromURL(image_url)
+      
+      const directoryPath = path.join(__dirname, '/util/tmp')
+      let direFiles : string[] = [];
+      fs.readdir(directoryPath, function(err, files) {
+         if (err) {
+
+           res.status(400).send({"error messag": err})
+
+         } else {
+          direFiles = files;
+        }
+      })
+      res.sendFile(filteredpath)
+      onFinished(res, function () {
+        deleteLocalFiles(direFiles.map(file=>{
+          file = directoryPath+ "/" + file;
+          return file;
+        }));
+      })
+    }
+    catch(error)
+    {
+      res.status(400).send(error);
+    }
+
+    }
+    
+})
   //! END @TODO1
   
-  // Root Endpoint
-  // Displays a simple message to the user
+ 
   app.get( "/", async ( req, res ) => {
     res.send("try GET /filteredimage?image_url={{}}")
   } );
