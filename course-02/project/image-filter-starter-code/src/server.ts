@@ -46,7 +46,7 @@ var appRoot = require('app-root-path');
     {
       let filteredpath : string = await filterImageFromURL(image_url)
       
-      const directoryPath : string = path.join(__dirname, '/tmp')
+      const directoryPath : string = path.join(__dirname, '/util/tmp')
       let direFiles : string[] = [];
       fs.readdir(directoryPath, function(err : any, files : string[]) {
          if (err) {
