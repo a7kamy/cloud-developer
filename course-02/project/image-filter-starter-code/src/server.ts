@@ -1,4 +1,5 @@
 import express from 'express';
+import { Request, Response  }  from 'express';
 import bodyParser from 'body-parser';
 import fs from 'fs';
 import path from 'path';
@@ -32,9 +33,9 @@ var appRoot = require('app-root-path');
   //   the filtered image file [!!TIP res.sendFile(filteredpath); might be useful]
 
   /**************************************************************************** */
-  app.get('/filteredimage/', async(req, res , n ) =>{
+  app.get('/filteredimage/', async(req : Request, res :Response ) =>{
 
-    let {image_url} = req.query
+    let {image_url}  = req.query
 
     if(!validUrl.isUri(image_url)){
       res.status(404).send({"error": "Inavlid query field : Image Url "})
@@ -43,15 +44,13 @@ var appRoot = require('app-root-path');
     {
       try
     {
-      let filteredpath = await filterImageFromURL(image_url)
+      let filteredpath : string = await filterImageFromURL(image_url)
       
-      const directoryPath = path.join(__dirname, '/util/tmp')
+      const directoryPath : string = path.join(__dirname, '/tmp')
       let direFiles : string[] = [];
-      fs.readdir(directoryPath, function(err, files) {
+      fs.readdir(directoryPath, function(err : any, files : string[]) {
          if (err) {
-
            res.status(400).send({"error messag": err})
-
          } else {
           direFiles = files;
         }
